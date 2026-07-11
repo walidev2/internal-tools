@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wali AI — Digital Business Card Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --bg:#111113; --panel:#1a1a1e; --panel-2:#202026; --line:#2c2c33;
+    --ink:#f2f0ec; --ink-dim:#a9a7a1; --ink-faint:#6e6c68;
+    --red:#c2333b; --red-hover:#d43f48; --green:#3fae6a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .page{max-width:920px;margin:0 auto;padding:48px 24px 64px}
+  .eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+  h1{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+  .sub{color:var(--ink-dim);font-size:14px;margin-bottom:36px;max-width:560px}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .form,.preview-wrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:26px}
+
+  label{display:block;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:18px 0 6px}
+  label:first-of-type{margin-top:0}
+  input,select{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:'Inter',sans-serif;font-size:15px;padding:11px 13px;outline:none;transition:border-color .15s}
+  input:focus,select:focus{border-color:var(--red)}
+  select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a9a7a1' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+  input::placeholder{color:var(--ink-faint)}
+  .fixed-note{font-size:12px;color:var(--ink-faint);margin-top:6px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:26px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;padding:14px;cursor:pointer;transition:background .15s}
+  .btn:hover{background:var(--red-hover)}
+  .btn.secondary{background:transparent;border:1px solid var(--line);color:var(--ink-dim);margin-top:10px;font-weight:600}
+  .btn.secondary:hover{border-color:var(--ink-faint);color:var(--ink)}
+
+  /* Card preview */
+  .card{background:linear-gradient(160deg,#1e1e23 0%,#17171b 100%);border:1px solid var(--line);border-radius:14px;padding:28px;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--red)}
+  .card .org{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:18px}
+  .card .name{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  .card .title{color:var(--ink-dim);font-size:14px;margin-top:4px;margin-bottom:20px}
+  .card .row{display:flex;gap:10px;font-size:13.5px;color:var(--ink-dim);padding:7px 0;border-top:1px solid var(--line)}
+  .card .row .k{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);width:52px;flex:none;padding-top:2px}
+  .card .row .v{color:var(--ink);word-break:break-all}
+  .card .slogan{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-faint);letter-spacing:.01em}
+
+  .qr-box{margin-top:22px;display:flex;gap:18px;align-items:center}
+  #qrcode{background:#fff;padding:10px;border-radius:10px;width:132px;height:132px;flex:none;display:flex;align-items:center;justify-content:center}
+  #qrcode img,#qrcode canvas{width:112px!important;height:112px!important}
+  .qr-note{font-size:12.5px;color:var(--ink-faint);line-height:1.5}
+  .qr-note b{color:var(--ink-dim);font-weight:600}
+
+  .how{margin-top:36px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px}
+  .how h2{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:12px}
+  .how p{font-size:13.5px;color:var(--ink-dim);margin-bottom:8px}
+  .how p b{color:var(--ink);font-weight:600}
+
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">Wali AI · Internal Tool</div>
+  <h1>Digital Business Card Generator</h1>
+  <p class="sub">Fill in your details, download your .vcf card, and text or email it to anyone — it opens straight into their phone's contacts. The QR code carries the same card for in-person scans.</p>
+
+  <div class="grid">
+    <div class="form">
+      <label for="fname">First name</label>
+      <input id="fname" placeholder="e.g. Lily" oninput="render()">
+
+      <label for="lname">Last name</label>
+      <input id="lname" placeholder="(optional)" oninput="render()">
+
+      <label for="title">Title</label>
+      <select id="title" onchange="render()">
+        <option value="">No title (optional)</option>
+      </select>
+
+      <label for="phone">Mobile phone</label>
+      <input id="phone" placeholder="e.g. +1 425 555 0100" oninput="render()">
+
+      <label for="email">Email</label>
+      <input id="email" placeholder="e.g. lily@mywali.co" oninput="render()">
+
+      <label for="linkedin">LinkedIn or other URL</label>
+      <input id="linkedin" placeholder="(optional)" oninput="render()">
+
+      <div class="fixed-note">Company (<b style="color:var(--ink-dim)">Wali AI</b>) and website (<b style="color:var(--ink-dim)">mywali.co</b>) are included automatically.</div>
+
+      <button class="btn" onclick="downloadVcf()">Download .vcf card</button>
+      <button class="btn secondary" onclick="downloadQr()">Download QR code (PNG)</button>
+      <button class="btn secondary" onclick="copySignature()">Copy email signature</button>
+    </div>
+
+    <div class="preview-wrap">
+      <div class="card">
+        <div class="org">Wali AI</div>
+        <div class="name" id="p-name">Your Name</div>
+        <div class="title" id="p-title">Your Title</div>
+        <div class="row"><span class="k">Mobile</span><span class="v" id="p-phone">—</span></div>
+        <div class="row"><span class="k">Email</span><span class="v" id="p-email">—</span></div>
+        <div class="row"><span class="k">Web</span><span class="v">mywali.co</span></div>
+        <div class="row" id="p-li-row" style="display:none"><span class="k">Link</span><span class="v" id="p-li">—</span></div>
+        <div class="slogan" id="p-slogan"></div>
+      </div>
+      <div class="qr-box">
+        <div id="qrcode"></div>
+        <div class="qr-note"><b>Scan to save.</b> The QR encodes the full contact card — save the image to your phone's photos and it works anywhere: lock screen, truck decal, email signature.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how">
+    <h2>How to use</h2>
+    <p><b>To send by text or email:</b> download the .vcf and attach it. On iPhone and Android it opens as an "Add contact" prompt.</p>
+    <p><b>In person:</b> let them scan your QR code — no app needed, the camera does it.</p>
+    <p><b>For the team:</b> each person opens this same file, enters their own details, and downloads their own card. Nothing is stored; everything runs on this page.</p>
+  </div>
+</div>
+
+<script>
+/* ── Brand slogan (fixed, customer-facing) ────────────────────
+   Appears on the card, in the saved contact's notes, and in
+   the email signature. Edit here once to update everywhere.   */
+const SLOGAN='Customized AI workflows that fit the way a business already works.';
+
+/* ── Approved external-facing titles ──────────────────────────
+   Edit this list to control what appears in the dropdown.     */
+const TITLES=[
+  'Founder & Managing Partner',
+  'Managing Partner',
+  'Client Partner',
+  'Growth Partner',
+  'AI Workflow Consultant',
+  'Principal, AI Solutions',
+  'Client Success Lead'
+];
+
+function val(id){return document.getElementById(id).value.trim()}
+
+function populateTitles(){
+  const sel=document.getElementById('title');
+  TITLES.forEach(t=>{
+    const o=document.createElement('option');
+    o.value=t;o.textContent=t;sel.appendChild(o);
+  });
+}
+
+function buildVcf(){
+  const fn=val('fname'), ln=val('lname'), full=(fn+' '+ln).trim()||'Wali AI';
+  const lines=[
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    'N:'+ln+';'+fn+';;;',
+    'FN:'+full,
+    'ORG:Wali AI',
+  ];
+  if(val('title')) lines.push('TITLE:'+val('title'));
+  if(val('phone')) lines.push('TEL;TYPE=CELL:'+val('phone'));
+  if(val('email')) lines.push('EMAIL;TYPE=INTERNET:'+val('email'));
+  lines.push('URL:https://mywali.co');
+  if(val('linkedin')) lines.push('URL:'+val('linkedin'));
+  lines.push('NOTE:'+SLOGAN);
+  lines.push('END:VCARD');
+  return lines.join('\r\n');
+}
+
+let qr=null;
+function render(){
+  const fn=val('fname'), ln=val('lname');
+  document.getElementById('p-name').textContent=(fn+' '+ln).trim()||'Your Name';
+  const t=val('title');
+  const pt=document.getElementById('p-title');
+  pt.textContent=t;
+  pt.style.display=t?'block':'none';
+  document.getElementById('p-phone').textContent=val('phone')||'—';
+  document.getElementById('p-email').textContent=val('email')||'—';
+  const li=val('linkedin');
+  document.getElementById('p-li-row').style.display=li?'flex':'none';
+  document.getElementById('p-li').textContent=li;
+  document.getElementById('p-slogan').textContent=SLOGAN;
+
+  const box=document.getElementById('qrcode');
+  box.innerHTML='';
+  try{
+    qr=new QRCode(box,{text:buildVcf(),width:112,height:112,correctLevel:QRCode.CorrectLevel.M});
+  }catch(e){
+    box.innerHTML='<span style="color:#999;font-size:11px;text-align:center">Add fewer details<br>for QR</span>';
+  }
+}
+
+function downloadVcf(){
+  const blob=new Blob([buildVcf()],{type:'text/vcard'});
+  const a=document.createElement('a');
+  const fn=val('fname')||'wali', ln=val('lname');
+  a.href=URL.createObjectURL(blob);
+  a.download=(fn+(ln?'-'+ln:'')+'-wali-ai').toLowerCase().replace(/\s+/g,'-')+'.vcf';
+  document.body.appendChild(a);a.click();a.remove();
+}
+
+function downloadQr(){
+  const box=document.getElementById('qrcode');
+  const img=box.querySelector('img')||box.querySelector('canvas');
+  if(!img)return;
+  // Compose onto a white canvas with a proper quiet zone for reliable scanning
+  const size=480, pad=48;
+  const c=document.createElement('canvas');
+  c.width=size;c.height=size;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,size,size);
+  const draw=()=>{
+    ctx.drawImage(img,pad,pad,size-2*pad,size-2*pad);
+    const a=document.createElement('a');
+    const fn=val('fname')||'wali', ln=val('lname');
+    a.download=(fn+(ln?'-'+ln:'')+'-wali-ai-qr').toLowerCase().replace(/\s+/g,'-')+'.png';
+    a.href=c.toDataURL('image/png');
+    document.body.appendChild(a);a.click();a.remove();
+  };
+  if(img.tagName==='IMG'&&!img.complete){img.onload=draw}else{draw()}
+}
+
+function copySignature(){
+  const fn=val('fname'), ln=val('lname'), full=(fn+' '+ln).trim()||'Your Name';
+  const title=val('title'), phone=val('phone'), email=val('email');
+  const html=
+    '<table cellpadding="0" cellspacing="0" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;line-height:1.5"><tr><td>'+
+    '<div style="font-size:15px;font-weight:bold;color:#111">'+full+'</div>'+
+    '<div style="color:#555">'+(title?title+' · ':'')+'<span style="color:#c2333b;font-weight:bold">Wali AI</span></div>'+
+    '<div style="margin-top:6px;color:#555">'+
+      (phone?phone+' · ':'')+
+      (email?'<a href="mailto:'+email+'" style="color:#555;text-decoration:none">'+email+'</a> · ':'')+
+      '<a href="https://mywali.co" style="color:#c2333b;text-decoration:none">mywali.co</a></div>'+
+    '<div style="margin-top:6px;font-size:11.5px;color:#999">'+SLOGAN+'</div>'+
+    '</td></tr></table>';
+  const text=full+'\n'+(title?title+' · ':'')+'Wali AI\n'+(phone?phone+' · ':'')+(email?email+' · ':'')+'mywali.co\n'+SLOGAN;
+  const done=()=>{
+    const b=document.querySelectorAll('.btn')[2];
+    const t=b.textContent;b.textContent='Copied ✓ — paste into Gmail/Outlook signature settings';
+    setTimeout(()=>b.textContent=t,2200);
+  };
+  if(navigator.clipboard&&window.ClipboardItem){
+    navigator.clipboard.write([new ClipboardItem({
+      'text/html':new Blob([html],{type:'text/html'}),
+      'text/plain':new Blob([text],{type:'text/plain'})
+    })]).then(done).catch(()=>{navigator.clipboard.writeText(text).then(done)});
+  }else{
+    navigator.clipboard.writeText(text).then(done);
+  }
+}
+
+populateTitles();
+render();
+</script>
+</body>
+</html>
