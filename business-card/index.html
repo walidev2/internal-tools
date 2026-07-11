@@ -70,7 +70,7 @@
   <div class="grid">
     <div class="form">
       <label for="fname">First name</label>
-      <input id="fname" placeholder="e.g. Lily" oninput="render()">
+      <input id="fname" placeholder="e.g. Nova" oninput="render()">
 
       <label for="lname">Last name</label>
       <input id="lname" placeholder="(optional)" oninput="render()">
@@ -84,7 +84,7 @@
       <input id="phone" placeholder="e.g. +1 425 555 0100" oninput="render()">
 
       <label for="email">Email</label>
-      <input id="email" placeholder="e.g. lily@mywali.co" oninput="render()">
+      <input id="email" placeholder="e.g. Nova@mywali.co" oninput="render()">
 
       <label for="linkedin">LinkedIn or other URL</label>
       <input id="linkedin" placeholder="(optional)" oninput="render()">
@@ -118,7 +118,6 @@
     <h2>How to use</h2>
     <p><b>To send by text or email:</b> download the .vcf and attach it. On iPhone and Android it opens as an "Add contact" prompt.</p>
     <p><b>In person:</b> let them scan your QR code — no app needed, the camera does it.</p>
-    <p><b>For the team:</b> each person opens this same file, enters their own details, and downloads their own card. Nothing is stored; everything runs on this page.</p>
   </div>
 </div>
 
@@ -126,18 +125,14 @@
 /* ── Brand slogan (fixed, customer-facing) ────────────────────
    Appears on the card, in the saved contact's notes, and in
    the email signature. Edit here once to update everywhere.   */
-const SLOGAN='Customized AI workflows that fit the way a business already works.';
+const SLOGAN='Custom AI. Built around your business.';
 
 /* ── Approved external-facing titles ──────────────────────────
    Edit this list to control what appears in the dropdown.     */
 const TITLES=[
-  'Founder & Managing Partner',
-  'Managing Partner',
-  'Client Partner',
-  'Growth Partner',
-  'AI Workflow Consultant',
-  'Principal, AI Solutions',
-  'Client Success Lead'
+  'Applied AI Strategist',
+  'Business AI Advisor',
+  'AI Growth Consultant'
 ];
 
 function val(id){return document.getElementById(id).value.trim()}
